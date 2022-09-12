@@ -1,8 +1,12 @@
-from multiprocessing.connection import wait
+from re import T
+from time import sleep
+import  PySimpleGUI as sg
+import record_mic
 import pyaudio
 import wave
 import time
 import threading
+import print_wave
 
 FRAMES_PER_BUFFER = 3200
 FORMAT = pyaudio.paInt16
@@ -22,7 +26,11 @@ stream = p.open(
 frames = []
 past_t = 0
 start_time = time.time()
-global recording
+recording = True
+
+layout = [
+    [sg.Text("L'enregistrement a commence")],
+    [sg.Button("Arret")]],
 
 def record():
     while recording:
@@ -36,7 +44,6 @@ def record():
         past_t = str(int(elapsed_time))
     return
 
-
 def end_record():
     stream.start_stream()
     stream.close()
@@ -49,12 +56,18 @@ def end_record():
     obj.writeframes(b"".join(frames))
     obj.close()
 
+window = sg.Window("Voice Recognition App", layout, margins=(150,100))
 
-if __name__ == "__main__":
-    recording = True
-    myThread = threading.Thread(target = record)
-    myThread.start()
-    recording = False
-    time.sleep(4)
-    myThread.join()
-    end_record()
+myThread = threading.Thread(target = record)
+myThread.start()
+
+while True:
+    event, values = window.read()
+    if event == "Arret" or event == sg.WIN_CLOSED:
+        recording = False
+        myThread.join()
+        end_record()
+        break
+
+window.close()
+print_wave.show("output.wav")
