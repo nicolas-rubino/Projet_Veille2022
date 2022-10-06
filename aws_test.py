@@ -67,7 +67,7 @@ async def basic_transcribe():
 
     # Start transcription to generate our async stream
     stream = await client.start_stream_transcription(
-        language_code="en-US",
+        language_code="fr-CA",
         media_sample_rate_hz=16000,
         media_encoding="pcm"
     )
